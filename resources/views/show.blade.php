@@ -42,7 +42,7 @@
     </style>
 </head>
 <body>
-    <a href="{{ route('request-logger.index') }}" class="back-link">← Back to Logs</a>
+    <a href="{{ route('gl.request-logger.index') }}" class="back-link">← Back to Logs</a>
     <h1>Request Log #{{ $log->id }}</h1>
 
     <div class="detail-grid">

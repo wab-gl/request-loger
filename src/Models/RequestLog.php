@@ -1,6 +1,6 @@
 <?php
 
-namespace Gl\RequestLogger\Models;
+namespace GreeLogix\RequestLogger\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,7 +11,7 @@ class RequestLog extends Model
      *
      * @var string
      */
-    protected $table = 'request_logs';
+    protected $table = 'gl_request_logs';
 
     /**
      * The attributes that are mass assignable.

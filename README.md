@@ -20,12 +20,55 @@ A Laravel package for logging HTTP requests with automatic sensitive data maskin
 
 ## Installation
 
+### For Local Development
+
+If you're using this package locally (not from Packagist), add it as a path repository in your project's `composer.json`:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../pkg/request-logger",
+            "symlink": true
+        }
+    ],
+    "require": {
+        "greelogix/request-logger": "*"
+    }
+}
+```
+
+Or using an absolute path:
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/home/waqas/gl/pkg/request-logger",
+            "symlink": true
+        }
+    ]
+}
+```
+
+Then run:
+```bash
+composer require greelogix/request-logger
+```
+
+**Important Notes:**
+- `symlink` must be a **direct property** of the repository object, not nested in `options`
+- Adjust the path to match the relative or absolute path from your Laravel project to this package directory
+- If symlink doesn't work (e.g., on Windows without Developer Mode), Composer will fallback to copying files
+- If you have issues, try deleting `vendor/greelogix/request-logger` and running `composer clear-cache` before reinstalling
+
 ### 1. Install the Package
 
 Add the package to your Laravel project via Composer:
 
 ```bash
-composer require composite/request-logger
+composer require greelogix/request-logger
 ```
 
 ### 2. Run the Install Command
@@ -33,7 +76,7 @@ composer require composite/request-logger
 This will publish the configuration file and provide setup instructions:
 
 ```bash
-php artisan request-logger:install
+php artisan gl-request-logger:install
 ```
 
 ### 3. Publish and Run Migrations
@@ -41,7 +84,7 @@ php artisan request-logger:install
 Publish the migration file:
 
 ```bash
-php artisan vendor:publish --tag=request-logger-migrations
+php artisan vendor:publish --tag=gl-request-logger-migrations
 ```
 
 Run the migrations:
@@ -58,8 +101,9 @@ The middleware needs to be registered to start logging requests.
 
 Add the middleware to `bootstrap/app.php`:
 
+**Option 1: Using `use` statement (recommended):**
 ```php
-use Gl\RequestLogger\Http\Middleware\LogRequests;
+use GreeLogix\RequestLogger\Http\Middleware\LogRequests;
 
 ->withMiddleware(function (Middleware $middleware) {
     $middleware->web(append: [
@@ -68,12 +112,22 @@ use Gl\RequestLogger\Http\Middleware\LogRequests;
 })
 ```
 
+**Option 2: Using fully qualified class name:**
+```php
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->web(append: [
+        \GreeLogix\RequestLogger\Http\Middleware\LogRequests::class,
+    ]);
+})
+```
+
 #### For Laravel 10
 
 Add the middleware to `app/Http/Kernel.php` in the `$middlewareGroups['web']` array:
 
+**Option 1: Using `use` statement (recommended):**
 ```php
-use Gl\RequestLogger\Http\Middleware\LogRequests;
+use GreeLogix\RequestLogger\Http\Middleware\LogRequests;
 
 protected $middlewareGroups = [
     'web' => [
@@ -83,6 +137,18 @@ protected $middlewareGroups = [
 ];
 ```
 
+**Option 2: Using fully qualified class name:**
+```php
+protected $middlewareGroups = [
+    'web' => [
+        // ... other middleware
+        \GreeLogix\RequestLogger\Http\Middleware\LogRequests::class,
+    ],
+];
+```
+
+**Note:** The namespace is `GreeLogix` (with capital G, L, and X). Make sure the casing is correct to avoid class not found errors.
+
 ## Usage
 
 ### Accessing the Log Viewer
@@ -90,7 +156,7 @@ protected $middlewareGroups = [
 Once the middleware is registered and you've made some requests, visit:
 
 ```
-http://your-app-url/request-logs
+http://your-app-url/gl/request-logs
 ```
 
 The route is automatically registered by the package and requires the `web` middleware group.
@@ -113,13 +179,13 @@ Click "View Payload" on any log entry to see the full request/response details.
 
 ### Publishing Configuration
 
-The configuration file is automatically published when you run `php artisan request-logger:install`. You can also publish it manually:
+The configuration file is automatically published when you run `php artisan gl-request-logger:install`. You can also publish it manually:
 
 ```bash
-php artisan vendor:publish --tag=request-logger-config
+php artisan vendor:publish --tag=gl-request-logger-config
 ```
 
-The configuration file will be published to `config/request-logger.php`.
+The configuration file will be published to `config/gl-request-logger.php`.
 
 ### Configuration Options
 
@@ -136,7 +202,7 @@ Enable or disable request logging globally.
 Choose the logging driver: `database` or `file`.
 
 ```php
-'driver' => env('REQUEST_LOGGER_DRIVER', 'database'),
+'driver' => env('GL_REQUEST_LOGGER_DRIVER', 'database'),
 ```
 
 #### `table`
@@ -144,7 +210,7 @@ Choose the logging driver: `database` or `file`.
 Database table name for storing logs (when using database driver).
 
 ```php
-'table' => 'request_logs',
+'table' => 'gl_request_logs',
 ```
 
 #### `file_channel`
@@ -152,7 +218,7 @@ Database table name for storing logs (when using database driver).
 Log channel to use when using file driver.
 
 ```php
-'file_channel' => env('REQUEST_LOGGER_CHANNEL', env('LOG_CHANNEL', 'stack')),
+'file_channel' => env('GL_REQUEST_LOGGER_CHANNEL', env('LOG_CHANNEL', 'stack')),
 ```
 
 #### `masked_keys`
@@ -179,7 +245,7 @@ Array of path/URI patterns to exclude from logging. Uses Laravel's `Str::is()` m
 
 ```php
 'ignored_routes' => [
-    'request-logs*',
+    'gl/request-logs*',
     'admin/*',
     'api/health*',
 ],
@@ -188,7 +254,7 @@ Array of path/URI patterns to exclude from logging. Uses Laravel's `Str::is()` m
 Examples:
 - `'admin/*'` - Matches all routes starting with `admin/`
 - `'api/users*'` - Matches routes like `api/users`, `api/users/123`, etc.
-- `'request-logs*'` - Matches all request logger UI routes
+- `'gl/request-logs*'` - Matches all request logger UI routes
 
 #### `ignored_urls`
 
@@ -225,7 +291,7 @@ Examples:
 Threshold in milliseconds for marking requests as "slow". Requests exceeding this duration will be marked with a red "SLOW" badge.
 
 ```php
-'slow_request_threshold_ms' => env('REQUEST_LOGGER_SLOW_THRESHOLD', 1000),
+'slow_request_threshold_ms' => env('GL_REQUEST_LOGGER_SLOW_THRESHOLD', 1000),
 ```
 
 #### `log_html_responses`
@@ -233,7 +299,15 @@ Threshold in milliseconds for marking requests as "slow". Requests exceeding thi
 Whether to log HTML response bodies. If set to `false`, HTML responses will be replaced with "HTML response" text to reduce database size.
 
 ```php
-'log_html_responses' => env('REQUEST_LOGGER_LOG_HTML', true),
+'log_html_responses' => env('GL_REQUEST_LOGGER_LOG_HTML', true),
+```
+
+#### `per_page`
+
+Number of log entries to display per page in the log viewer UI. Default is 50.
+
+```php
+'per_page' => env('GL_REQUEST_LOGGER_PER_PAGE', 50),
 ```
 
 ### Environment Variables
@@ -241,17 +315,18 @@ Whether to log HTML response bodies. If set to `false`, HTML responses will be r
 You can configure the package using environment variables:
 
 ```env
-REQUEST_LOGGER_DRIVER=database
-REQUEST_LOGGER_CHANNEL=stack
-REQUEST_LOGGER_SLOW_THRESHOLD=1000
-REQUEST_LOGGER_LOG_HTML=true
+GL_REQUEST_LOGGER_DRIVER=database
+GL_REQUEST_LOGGER_CHANNEL=stack
+GL_REQUEST_LOGGER_SLOW_THRESHOLD=1000
+GL_REQUEST_LOGGER_LOG_HTML=true
+GL_REQUEST_LOGGER_PER_PAGE=50
 ```
 
 ## Logging Drivers
 
 ### Database Driver
 
-Stores logs in the `request_logs` database table. This is the default driver and provides the best performance for viewing logs through the web UI.
+Stores logs in the `gl_request_logs` database table. This is the default driver and provides the best performance for viewing logs through the web UI.
 
 ### File Driver
 
@@ -302,10 +377,10 @@ By default, the request logger UI routes are excluded to prevent logging the log
 To customize the log viewer UI, publish the views:
 
 ```bash
-php artisan vendor:publish --tag=request-logger-views
+php artisan vendor:publish --tag=gl-request-logger-views
 ```
 
-Views will be published to `resources/views/vendor/request-logger/`.
+Views will be published to `resources/views/vendor/gl-request-logger/`.
 
 ## Troubleshooting
 
@@ -322,7 +397,7 @@ If you get an error about the migration already existing, you can:
 2. Or manually drop the table and re-run migrations:
    ```bash
    php artisan tinker
-   >>> Schema::dropIfExists('request_logs');
+   >>> Schema::dropIfExists('gl_request_logs');
    >>> exit
    php artisan migrate
    ```
@@ -341,6 +416,21 @@ If you encounter class not found errors:
 
 1. Run `composer dump-autoload`
 2. Clear Laravel's cache: `php artisan config:clear` and `php artisan cache:clear`
+
+## Greelogix Package Structure
+
+This package follows the Greelogix organizational structure and naming conventions. For detailed information about:
+
+- **Package structure and naming conventions**: See [GREELOGIX_STRUCTURE.md](./GREELOGIX_STRUCTURE.md)
+- **Template for creating new packages**: See [PACKAGE_TEMPLATE.md](./PACKAGE_TEMPLATE.md)
+
+These documents outline the consistent patterns used across all Greelogix packages, including:
+- Namespace structure (`GreeLogix\{PackageName}`)
+- Configuration file naming (`gl-{package-name}.php`)
+- Database table naming (`gl_{table_name}`)
+- Route prefixes and naming (`gl/` prefix, `gl.{package-name}.{action}`)
+- Environment variables (`GL_{PACKAGE_NAME}_{SETTING}`)
+- Publishing tags (`gl-{package-name}-{type}`)
 
 ## License
 

@@ -1,5 +1,5 @@
 {
-  "name": "composite/request-logger",
+  "name": "greelogix/request-logger",
   "description": "Request logger with masking and UI for Laravel 10 and 11.",
   "type": "library",
   "license": "MIT",
@@ -9,13 +9,13 @@
   },
   "autoload": {
     "psr-4": {
-      "Gl\\RequestLogger\\": "src/"
+      "GreeLogix\\RequestLogger\\": "src/"
     }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "Gl\\RequestLogger\\RequestLoggerServiceProvider"
+        "GreeLogix\\RequestLogger\\RequestLoggerServiceProvider"
       ]
     }
   },

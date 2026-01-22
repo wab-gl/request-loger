@@ -1,8 +1,8 @@
 <?php
 
-namespace Gl\RequestLogger\Http\Middleware;
+namespace GreeLogix\RequestLogger\Http\Middleware;
 
-use Gl\RequestLogger\Models\RequestLog;
+use GreeLogix\RequestLogger\Models\RequestLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -20,7 +20,7 @@ class LogRequests
      */
     public function handle(Request $request, \Closure $next): Response
     {
-        if (!config('request-logger.enabled', true)) {
+        if (!config('gl-request-logger.enabled', true)) {
             return $next($request);
         }
 
@@ -45,7 +45,7 @@ class LogRequests
     protected function isIgnoredRoute(Request $request): bool
     {
         // Check path patterns (URI/endpoint patterns)
-        $pathPatterns = (array) config('request-logger.ignored_routes', []);
+        $pathPatterns = (array) config('gl-request-logger.ignored_routes', []);
         $uri = $request->path();
 
         foreach ($pathPatterns as $pattern) {
@@ -55,7 +55,7 @@ class LogRequests
         }
 
         // Check full URL patterns
-        $urlPatterns = (array) config('request-logger.ignored_urls', []);
+        $urlPatterns = (array) config('gl-request-logger.ignored_urls', []);
         $fullUrl = $request->fullUrl();
 
         foreach ($urlPatterns as $pattern) {
@@ -65,7 +65,7 @@ class LogRequests
         }
 
         // Check regex patterns for paths
-        $regexPatterns = (array) config('request-logger.ignored_paths_regex', []);
+        $regexPatterns = (array) config('gl-request-logger.ignored_paths_regex', []);
         foreach ($regexPatterns as $pattern) {
             if ($this->matchesRegex($pattern, $uri)) {
                 return true;
@@ -97,7 +97,7 @@ class LogRequests
      */
     protected function storeLog(Request $request, Response $response, float $durationMs): void
     {
-        $driver = config('request-logger.driver', 'database');
+        $driver = config('gl-request-logger.driver', 'database');
         $payload = $this->buildPayload($request, $response, $durationMs);
 
         if ($driver === 'database' && $this->canUseDatabase()) {
@@ -105,7 +105,7 @@ class LogRequests
             return;
         }
 
-        $channel = config('request-logger.file_channel', config('logging.default'));
+        $channel = config('gl-request-logger.file_channel', config('logging.default'));
         Log::channel($channel)->info('Request log', $payload);
     }
 
@@ -114,7 +114,7 @@ class LogRequests
      */
     protected function buildPayload(Request $request, Response $response, float $durationMs): array
     {
-        $maskedKeys = array_map(fn ($key) => Str::lower($key), (array) config('request-logger.masked_keys', []));
+        $maskedKeys = array_map(fn ($key) => Str::lower($key), (array) config('gl-request-logger.masked_keys', []));
         $input = $this->maskData($request->all(), $maskedKeys);
         $headers = $this->maskData($request->headers->all(), $maskedKeys);
 
@@ -191,7 +191,7 @@ class LogRequests
      */
     protected function canUseDatabase(): bool
     {
-        $table = config('request-logger.table', 'request_logs');
+        $table = config('gl-request-logger.table', 'gl_request_logs');
 
         try {
             return DB::connection()->getSchemaBuilder()->hasTable($table);
@@ -209,7 +209,7 @@ class LogRequests
         $contentType = $response->headers->get('Content-Type', '');
 
         // Check if HTML logging is disabled
-        $logHtml = config('request-logger.log_html_responses', true);
+        $logHtml = config('gl-request-logger.log_html_responses', true);
         
         // Detect HTML responses
         $isHtml = Str::contains(strtolower($contentType), 'text/html') 

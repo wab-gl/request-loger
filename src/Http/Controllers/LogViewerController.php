@@ -1,8 +1,8 @@
 <?php
 
-namespace Gl\RequestLogger\Http\Controllers;
+namespace GreeLogix\RequestLogger\Http\Controllers;
 
-use Gl\RequestLogger\Models\RequestLog;
+use GreeLogix\RequestLogger\Models\RequestLog;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -49,12 +49,13 @@ class LogViewerController extends Controller
             $query->whereDate('created_at', '<=', $request->get('date_to'));
         }
 
-        $logs = $query->with('user')->orderByDesc('created_at')->paginate(50)->withQueryString();
+        $perPage = config('gl-request-logger.per_page', 50);
+        $logs = $query->with('user')->orderByDesc('created_at')->paginate($perPage)->withQueryString();
         
         // Get the latest log ID for polling
         $latestLog = RequestLog::orderByDesc('id')->first();
 
-        return view('request-logger::index', [
+        return view('gl-request-logger::index', [
             'logs' => $logs,
             'search' => $request->get('search'),
             'method' => $request->get('method'),
@@ -62,7 +63,7 @@ class LogViewerController extends Controller
             'date_from' => $request->get('date_from'),
             'date_to' => $request->get('date_to'),
             'latest_log_id' => $latestLog ? $latestLog->id : 0,
-            'slow_threshold' => config('request-logger.slow_request_threshold_ms', 1000),
+            'slow_threshold' => config('gl-request-logger.slow_request_threshold_ms', 1000),
         ]);
     }
 
@@ -73,9 +74,9 @@ class LogViewerController extends Controller
     {
         $log = RequestLog::with('user')->findOrFail($id);
 
-        return view('request-logger::show', [
+        return view('gl-request-logger::show', [
             'log' => $log,
-            'slow_threshold' => config('request-logger.slow_request_threshold_ms', 1000),
+            'slow_threshold' => config('gl-request-logger.slow_request_threshold_ms', 1000),
         ]);
     }
 
@@ -94,7 +95,7 @@ class LogViewerController extends Controller
             ]);
         }
 
-        return redirect()->route('request-logger.index')
+        return redirect()->route('gl.request-logger.index')
             ->with('success', "Deleted {$deleted} log(s) successfully.");
     }
 

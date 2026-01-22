@@ -1,8 +1,8 @@
 <?php
 
-namespace Gl\RequestLogger\Console;
+namespace GreeLogix\RequestLogger\Console;
 
-use Gl\RequestLogger\Http\Middleware\LogRequests;
+use GreeLogix\RequestLogger\Http\Middleware\LogRequests;
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command
@@ -12,14 +12,14 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'request-logger:install';
+    protected $signature = 'gl-request-logger:install';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Install RequestLogger and guide middleware registration.';
+    protected $description = 'Install GL Request Logger and guide middleware registration.';
 
     /**
      * Execute the console command.
@@ -27,7 +27,7 @@ class InstallCommand extends Command
     public function handle(): int
     {
         $this->info('Publishing configuration...');
-        $this->callSilent('vendor:publish', ['--tag' => 'request-logger-config']);
+        $this->callSilent('vendor:publish', ['--tag' => 'gl-request-logger-config']);
 
         $bootstrapApp = base_path('bootstrap/app.php');
 
@@ -40,7 +40,7 @@ class InstallCommand extends Command
         }
 
         $this->line('');
-        $this->line('Route: GET /request-logs (web middleware) to view logs.');
+        $this->line('Route: GET /gl/request-logs (web middleware) to view logs.');
 
         return self::SUCCESS;
     }

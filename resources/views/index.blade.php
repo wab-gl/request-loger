@@ -64,7 +64,7 @@
     <div class="header-actions">
         <h1 style="margin: 0;">Request Logs</h1>
         @if($logs->total() > 0)
-            <form method="POST" action="{{ route('request-logger.destroy') }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete all {{ $logs->total() }} log entries? This action cannot be undone.');">
+            <form method="POST" action="{{ route('gl.request-logger.destroy') }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete all {{ $logs->total() }} log entries? This action cannot be undone.');">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn btn-danger">Clear All Records</button>
@@ -80,10 +80,10 @@
 
     <div id="newEntriesNotification" class="new-entries-notification">
         <div style="margin-bottom: 8px;">New log entries available!</div>
-        <a href="{{ route('request-logger.index', request()->query()) }}" id="loadNewEntriesLink">Load new entries</a>
+        <a href="{{ route('gl.request-logger.index', request()->query()) }}" id="loadNewEntriesLink">Load new entries</a>
     </div>
     
-    <form method="GET" action="{{ route('request-logger.index') }}" class="search-form">
+    <form method="GET" action="{{ route('gl.request-logger.index') }}" class="search-form">
         <div class="search-row">
             <div class="form-group">
                 <label for="search">Search</label>
@@ -115,7 +115,7 @@
             <div class="form-group">
                 <button type="submit" class="btn">Search</button>
                 @if($search || $method || $status_code || $date_from || $date_to)
-                    <a href="{{ route('request-logger.index') }}" class="btn btn-secondary" style="margin-top: 8px;">Clear</a>
+                    <a href="{{ route('gl.request-logger.index') }}" class="btn btn-secondary" style="margin-top: 8px;">Clear</a>
                 @endif
             </div>
         </div>
@@ -156,13 +156,13 @@
                             @endif
                         </div>
                         <div style="margin-top: 4px;">
-                            <a href="{{ route('request-logger.show', $log->id) }}" class="link">{{ $log->path }}</a>
+                            <a href="{{ route('gl.request-logger.show', $log->id) }}" class="link">{{ $log->path }}</a>
                         </div>
                         <div class="meta">Status: {{ $log->status_code }} | Duration: {{ number_format($log->duration_ms, 2) }}ms</div>
                     </td>
                     <td>{{ $log->ip ?? 'N/A' }}</td>
                     <td>
-                        <a href="{{ route('request-logger.show', $log->id) }}" class="btn" style="text-decoration: none; display: inline-block;">View Details</a>
+                        <a href="{{ route('gl.request-logger.show', $log->id) }}" class="btn" style="text-decoration: none; display: inline-block;">View Details</a>
                     </td>
                 </tr>
             @empty
@@ -224,7 +224,7 @@
     <script>
         (function() {
             const latestLogId = {{ $latest_log_id }};
-            const checkUrl = '{{ route("request-logger.check-new") }}';
+            const checkUrl = '{{ route("gl.request-logger.check-new") }}';
             const notification = document.getElementById('newEntriesNotification');
             const loadLink = document.getElementById('loadNewEntriesLink');
             let pollingInterval;

@@ -1,13 +1,13 @@
 <?php
 
 return [
-    'enabled' => env('REQUEST_LOGGER_ENABLED', true),
+    'enabled' => env('GL_REQUEST_LOGGER_ENABLED', env('REQUEST_LOGGER_ENABLED', true)),
 
-    'driver' => env('REQUEST_LOGGER_DRIVER', 'database'), // 'database' or 'file'
+    'driver' => env('GL_REQUEST_LOGGER_DRIVER', env('REQUEST_LOGGER_DRIVER', 'database')), // 'database' or 'file'
 
-    'table' => 'request_logs',
+    'table' => 'gl_request_logs',
 
-    'file_channel' => env('REQUEST_LOGGER_CHANNEL', env('LOG_CHANNEL', 'stack')),
+    'file_channel' => env('GL_REQUEST_LOGGER_CHANNEL', env('REQUEST_LOGGER_CHANNEL', env('LOG_CHANNEL', 'stack'))),
 
     'masked_keys' => [
         'password',
@@ -31,8 +31,8 @@ return [
     |
     */
     'ignored_routes' => [
-        'request-logs*',
-        'request-logs-check-new',
+        'gl/request-logs*',
+        'gl/request-logs-check-new',
     ],
 
     /*
@@ -70,7 +70,7 @@ return [
     | marked as "slow" in the log viewer.
     |
     */
-    'slow_request_threshold_ms' => env('REQUEST_LOGGER_SLOW_THRESHOLD', 1000),
+    'slow_request_threshold_ms' => env('GL_REQUEST_LOGGER_SLOW_THRESHOLD', env('REQUEST_LOGGER_SLOW_THRESHOLD', 1000)),
 
     /*
     |--------------------------------------------------------------------------
@@ -82,5 +82,17 @@ return [
     | database size and improve performance.
     |
     */
-    'log_html_responses' => env('REQUEST_LOGGER_LOG_HTML', false),
+    'log_html_responses' => env('GL_REQUEST_LOGGER_LOG_HTML', env('REQUEST_LOGGER_LOG_HTML', false)),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination Per Page
+    |--------------------------------------------------------------------------
+    |
+    | Number of log entries to display per page in the log viewer UI.
+    | Adjust this value based on your needs and server performance.
+    |
+    */
+    'per_page' => env('GL_REQUEST_LOGGER_PER_PAGE', env('REQUEST_LOGGER_PER_PAGE', 50)),
 ];
+

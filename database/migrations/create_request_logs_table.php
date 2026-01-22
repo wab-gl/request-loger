@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('request_logs', function (Blueprint $table) {
+        Schema::create('gl_request_logs', function (Blueprint $table) {
             $table->id();
             $table->string('method', 10);
             $table->string('path');
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('request_logs');
+        Schema::dropIfExists('gl_request_logs');
     }
 };
